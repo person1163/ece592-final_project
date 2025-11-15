@@ -2,38 +2,56 @@
 
 import pandas as pd
 import matplotlib
-matplotlib.use("Agg")    # safe for headless nodes
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
 def main():
     df = pd.read_csv("results.csv")
 
-    cases = df["case"]
+    # Pretty names for x-axis
+    pretty_names = {
+        "victim_only": "Victim Only",
+        "victim_with_attacker": "Victim + High-Move Attacker\n(move eliminated)",
+        "victim_with_low_moves": "Victim + Low-Move Attacker\n(no move elimination)",
+    }
+
+    df["pretty_case"] = df["case"].map(pretty_names)
+
+    # Convert seconds -> milliseconds for better readability
+    df["time_ms"] = df["time_sec"] * 1000
+
+    # Metrics with clear Y-axis labels
     metrics = [
-        ("cycles", "Cycles"),
-        ("instructions", "Instructions"),
-        ("uops_issued", "Uops Issued"),
-        ("uops_executed", "Uops Executed (core)"),
-        ("idq_not_delivered", "IDQ Uops Not Delivered"),
-        ("resource_stalls", "Resource Stalls (RS)"),
-        ("time_sec", "Time (sec)"),
+        ("cycles", "Cycles (CPU cycles)"),
+        ("instructions", "Instructions Retired"),
+        ("uops_issued", "µops Issued"),
+        ("idq_not_delivered", "IDQ: µops Not Delivered to Front End"),
+        ("resource_stalls", "RS Resource Stalls"),
+        ("time_ms", "Execution Time (ms)"),   # <--- UPDATED
     ]
 
-    fig, axes = plt.subplots(3, 3, figsize=(15, 12))
+    # Make 2x3 subplot layout (6 charts)
+    fig, axes = plt.subplots(2, 3, figsize=(16, 10))
     axes = axes.flatten()
 
-    for idx, (col, title) in enumerate(metrics):
-        ax = axes[idx]
-        ax.bar(cases, df[col], color=["#3b82f6", "#ef4444", "#22c55e"])
-        ax.set_title(title)
-        ax.set_xticklabels(cases, rotation=20, ha="right")
-        ax.grid(axis="y", linestyle="--", alpha=0.5)
+    colors = ["#3b82f6", "#ef4444", "#22c55e"]
 
-    fig.suptitle("Victim Performance Comparison: Move Elimination vs No-Elimination Attackers", fontsize=16)
+    for idx, (col, y_label) in enumerate(metrics):
+        ax = axes[idx]
+        ax.bar(df["pretty_case"], df[col], color=colors)
+        ax.set_title(y_label, fontsize=12)
+        ax.set_ylabel(y_label, fontsize=10)
+        ax.set_xticklabels(df["pretty_case"], rotation=15, ha="right", fontsize=9)
+        ax.grid(axis="y", linestyle="--", alpha=0.4)
+
+    fig.suptitle(
+        "Victim Performance Under Move-Eliminated vs Non-Eliminated Attackers",
+        fontsize=16
+    )
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
 
-    out = "victim_attack_summary.png"
+    out = "victim_attack_summary_clean.png"
     fig.savefig(out)
     print(f"Saved {out}")
 
