@@ -1,0 +1,57 @@
+11/15/2025
+    4:17
+        Victim w/ no attacker:
+        [vcvenkat@sunbird attack_v1]$ taskset -c 24 perf stat -e cycles,instructions,uops_issued.any,idq_uops_not_delivered.core,resource_stalls.rs ./victim
+
+        Performance counter stats for './victim':
+
+            21,599,172,496      cycles:u                                                              
+            28,000,167,259      instructions:u                   #    1.30  insn per cycle            
+            26,003,993,341      uops_issued.any:u                                                     
+            1,384,650,493      idq_uops_not_delivered.core:u                                         
+                89,863,070      resource_stalls.rs:u                                                  
+
+            8.662473424 seconds time elapsed
+
+            8.644444000 seconds user
+            0.001988000 seconds sys
+
+        victim w/ attacker:
+        [vcvenkat@sunbird attack_v1]$ taskset -c 24 perf stat -e cycles,instructions,uops_issued.any,idq_uops_not_delivered.core,resource_stalls.rs ./victim
+
+        Performance counter stats for './victim':
+
+            24,087,909,852      cycles:u                                                              
+            28,000,168,196      instructions:u                   #    1.16  insn per cycle            
+            26,003,311,196      uops_issued.any:u                                                     
+            18,338,848,753      idq_uops_not_delivered.core:u                                         
+            2,289,354,105      resource_stalls.rs:u                                                  
+
+            9.667819282 seconds time elapsed
+
+            9.643462000 seconds user
+            0.000994000 seconds sys
+
+            victim with low moves:
+            [vcvenkat@sunbird attack_v1]$ taskset -c 24 perf stat \
+  -e cycles,instructions,uops_issued.any,uops_executed.core,idq_uops_not_delivered.core,resource_stalls.rs \
+  ./victim
+
+ Performance counter stats for './victim':
+
+    24,125,708,556      cycles:u                                                                (66.66%)
+    27,994,609,301      instructions:u                   #    1.16  insn per cycle              (83.33%)
+    26,003,964,191      uops_issued.any:u                                                       (83.33%)
+    72,156,412,438      uops_executed.core:u                                                    (83.33%)
+    15,725,990,310      idq_uops_not_delivered.core:u                                           (83.33%)
+     3,308,754,419      resource_stalls.rs:u                                                    (83.34%)
+
+       9.761785130 seconds time elapsed
+
+       9.657625000 seconds user
+       0.002917000 seconds sys
+
+
+
+
+
