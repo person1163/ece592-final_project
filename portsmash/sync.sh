@@ -36,10 +36,10 @@ mkfifo pipe.fifo
 # Victims: exactly one of these should active at runtime, so make sure exactly one is commented out.
 
 # Victim 1: start signing but it will be blocked
-taskset -c 7 $OPENSSL dgst -sha512 -sign $KEY_FILE -out data.sig pipe.fifo &
+#taskset -c 7 $OPENSSL dgst -sha512 -sign $KEY_FILE -out data.sig pipe.fifo &
 
 # Victim 2: start scalar multiplication but it will be blocked
-#taskset -c 7 ./ecc M 4 000084210000842100008421000084210000842100008421000084210000842100008421000084210000842100008421 &
+taskset -c 7 ./ecc M 4 000084210000842100008421000084210000842100008421000084210000842100008421000084210000842100008421 &
 
 sleep 0.1
 
