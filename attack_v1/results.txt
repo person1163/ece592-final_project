@@ -51,6 +51,52 @@
        9.657625000 seconds user
        0.002917000 seconds sys
 
+    11/18/25 5:41 PM Victim Baseline
+ Performance counter stats for './victim':
+
+    21,322,222,523      cycles:u                                                                (49.99%)
+    27,989,838,938      instructions:u                   #    1.31  insn per cycle              (62.49%)
+    26,007,459,632      uops_issued.any:u                                                       (62.50%)
+    32,061,795,475      uops_executed.core:u                                                    (62.51%)
+       938,100,095      idq_uops_not_delivered.core:u                                           (62.52%)
+        51,311,460      resource_stalls.rs:u                                                    (62.51%)
+               340      move_elimination.int_eliminated:u                                        (49.99%)
+                38      move_elimination.int_not_eliminated:u                                        (49.98%)
+
+    Victim with High moves
+
+    [vcvenkat@sunbird attack_v1]$ taskset -c 24 perf stat   -e cycles,instructions,uops_issued.any,uops_executed.core,idq_uops_not_delivered.core,resource_stalls.rs,move_elimination.int_eliminated,move_elimination.int_not_eliminated   ./victim
+
+ Performance counter stats for './victim':
+
+    24,068,349,852      cycles:u                                                                (50.00%)
+    27,987,084,013      instructions:u                   #    1.16  insn per cycle              (62.51%)
+    25,995,278,411      uops_issued.any:u                                                       (62.51%)
+    69,732,331,006      uops_executed.core:u                                                    (62.51%)
+    18,347,077,409      idq_uops_not_delivered.core:u                                           (62.50%)
+     2,290,195,166      resource_stalls.rs:u                                                    (62.50%)
+                 0      move_elimination.int_eliminated:u                                        (49.99%)
+                 0      move_elimination.int_not_eliminated:u                                        (49.99%)
+    
+    Victim with Low Moves
+
+[vcvenkat@sunbird attack_v1]$ taskset -c 24 perf stat   -e cycles,instructions,uops_issued.any,uops_executed.core,idq_uops_not_delivered.core,resource_stalls.rs,move_elimination.int_eliminated,move_elimination.int_not_eliminated   ./victim
+
+ Performance counter stats for './victim':
+
+    24,117,744,248      cycles:u                                                                (49.99%)
+    27,986,754,822      instructions:u                   #    1.16  insn per cycle              (62.49%)
+    25,997,026,668      uops_issued.any:u                                                       (62.49%)
+    72,198,117,206      uops_executed.core:u                                                    (62.50%)
+    15,719,893,873      idq_uops_not_delivered.core:u                                           (62.51%)
+     3,297,202,488      resource_stalls.rs:u                                                    (62.52%)
+               259      move_elimination.int_eliminated:u                                        (50.00%)
+                36      move_elimination.int_not_eliminated:u                                        (49.99%)
+
+       9.757580146 seconds time elapsed
+
+       9.659656000 seconds user
+       0.000000000 seconds sys
 
 
 
