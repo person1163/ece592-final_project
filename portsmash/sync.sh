@@ -36,7 +36,7 @@ mkfifo pipe.fifo
 # Victims: exactly one of these should active at runtime, so make sure exactly one is commented out.
 
 # Victim 1: start signing but it will be blocked
-taskset -c 7 $OPENSSL dgst -sha512 -sign $KEY_FILE -out data.sig pipe.fifo &
+taskset -c 24 $OPENSSL dgst -sha512 -sign $KEY_FILE -out data.sig pipe.fifo &
 
 # Victim 2: start scalar multiplication but it will be blocked
 #taskset -c 7 ./ecc M 4 000084210000842100008421000084210000842100008421000084210000842100008421000084210000842100008421 &
@@ -45,7 +45,7 @@ sleep 0.1
 
 # Spy: must be on same physical core, but different logical core
 # start spying and generate the message to be signed
-taskset -c 3 ./spy
+taskset -c 0 perf stat -e move_elimination.int_eliminated,move_elimination.int_not_eliminated ./spy
 
 # wait to finish the signature/spying
 wait

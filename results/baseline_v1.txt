@@ -1,0 +1,14 @@
+[vcvenkat@sunbird portsmash]$ taskset -c 0 perf stat -e move_elimination.int_eliminated,move_elimination.int_not_eliminated ./spy
+
+ Performance counter stats for './spy':
+
+         8,573,702      move_elimination.int_eliminated:u                                      
+        25,067,973      move_elimination.int_not_eliminated:u                                      
+
+       0.014021566 seconds time elapsed
+
+       0.012997000 seconds user
+       0.001000000 seconds sys
+
+
+[vcvenkat@sunbird portsmash]$ 

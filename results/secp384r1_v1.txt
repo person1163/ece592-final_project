@@ -1,0 +1,19 @@
+[vcvenkat@sunbird portsmash]$ ./sync.sh
+rm -f spy ecc *~ *.pyc
+cc -o spy spy.c spy.S -g -Wall
+cc -o ecc ecc.c -g -Wall -lcrypto -I/usr/local/ssl/include -L/usr/local/ssl/lib -Wl,-rpath=/usr/local/ssl/lib
+
+ Performance counter stats for './spy':
+
+         9,991,521      move_elimination.int_eliminated:u                                      
+        23,652,178      move_elimination.int_not_eliminated:u                                      
+
+       0.013533107 seconds time elapsed
+
+       0.012459000 seconds user
+       0.001043000 seconds sys
+
+
+1024+0 records in
+1024+0 records out
+1024 bytes (1.0 kB, 1.0 KiB) copied, 0.00321121 s, 319 kB/s
