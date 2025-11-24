@@ -1,18 +1,13 @@
-CFLAGS += -g -Wall
-OPENSSL_ROOT_DIR=/usr/local/ssl
+CC = gcc
+CFLAGS = -O2 -Wall
 
-all: spy ecc
+all: attacker ecc
 
-spy: spy.c spy.S
-	$(CC) -o $@ $^ $(CFLAGS)
+attacker: attacker.c attacker.h
+	$(CC) attacker.c -o attacker $(CFLAGS)
 
-ecc: ecc.c
-	$(CC) -o $@ $< $(CFLAGS) -lcrypto -I$(OPENSSL_ROOT_DIR)/include -L$(OPENSSL_ROOT_DIR)/lib -Wl,-rpath=$(OPENSSL_ROOT_DIR)/lib
+ecc: ecc.c attacker.h
+	$(CC) ecc.c -o ecc $(CFLAGS) -lcrypto
 
 clean:
-	rm -f spy ecc *~ *.pyc
-
-deepclean: clean
-	rm -f timings.bin data.bin data.sig secp384r1.pem
-
-.PHONY: clean deepclean
+	rm -f attacker ecc pipe.fifo
