@@ -1,0 +1,14 @@
+# started on Sun Nov 23 19:39:35 2025
+
+
+ Performance counter stats for './spy':
+
+        10,000,991      move_elimination.int_eliminated:u                                      
+        23,642,001      move_elimination.int_not_eliminated:u                                      
+
+       0.013492851 seconds time elapsed
+
+       0.012428000 seconds user
+       0.001040000 seconds sys
+
+

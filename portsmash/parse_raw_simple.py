@@ -79,6 +79,6 @@ except:
     warnings.warn("scipy.signal.find_peaks not found: Consult README.md")
 
 # plt.get_current_fig_manager().full_screen_toggle()
-plt.savefig("/home/vcvenkat/ece592-final_project/results/NID_brainpoolp512r1_v1.png", dpi=300)
+plt.savefig("/home/vcvenkat/ece592-final_project/results/NID_secp384r1_v2.png", dpi=300)
 plt.show()
 
