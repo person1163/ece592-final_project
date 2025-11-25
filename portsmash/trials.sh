@@ -1,8 +1,8 @@
 #!/bin/bash
 
-RUNS=10
-CURVE="secp384r1"
-BASEOUT="test_single"
+RUNS=1000
+CURVE="secp521r1"
+BASEOUT="secp521r1_all_1000"
 mkdir -p "$BASEOUT"
 
 CSV="$BASEOUT/results_summary.csv"

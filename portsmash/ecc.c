@@ -37,8 +37,8 @@ int main(int argc, char * argv[]) {
     assert(ctx != NULL);
     BN_CTX_start(ctx);
 
-    EC_GROUP *group = EC_GROUP_new_by_curve_name(NID_secp384r1);
-    // EC_GROUP *group = EC_GROUP_new_by_curve_name(NID_secp521r1);
+    // EC_GROUP *group = EC_GROUP_new_by_curve_name(NID_secp384r1);
+    EC_GROUP *group = EC_GROUP_new_by_curve_name(NID_secp521r1);
     // EC_GROUP *group = EC_GROUP_new_by_curve_name(NID_brainpoolP512r1);
     assert(group != NULL);
 
