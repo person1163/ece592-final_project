@@ -2,17 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <x86intrin.h>
+#include "attacker.h" 
 
-#include "attacker.h"
-
-int main() {
-    // (1) Wake victim via pipe
+int main(void) {
+    // 1) Wake victim
     uint8_t *zeroes = calloc(ZERO_COUNT, 1);
-    assert(zeroes);
+    assert(zeroes != NULL);
 
     FILE *pipe = fopen(SPY_PIPE, "wb");
-    assert(pipe);
+    assert(pipe != NULL);
 
     size_t written = fwrite(zeroes, 1, ZERO_COUNT, pipe);
     assert(written == ZERO_COUNT);
@@ -20,16 +18,22 @@ int main() {
     fclose(pipe);
     free(zeroes);
 
-    // (2) MOV-only attacker loop
-    register uint64_t a = 1, b = 2;
+    // 2) Allocate timing buffer
+    uint64_t *timings = calloc(SPY_NUM_TIMINGS, sizeof(uint64_t));
+    assert(timings != NULL);
 
-    for (uint64_t i = 0; i < 2000000000ULL; i++) {
-        __asm__ volatile(
-            "mov %1, %0"
-            : "+r"(a)
-            : "r"(b)
-        );
-    }
+    // 3) Run spy loop
+    rensmash(timings);
+
+    // 4) Dump timings.bin
+    FILE *fp = fopen("timings.bin", "wb");
+    assert(fp != NULL);
+
+    size_t ret = fwrite(timings, sizeof(uint64_t), SPY_NUM_TIMINGS, fp);
+    assert(ret == SPY_NUM_TIMINGS);
+
+    fclose(fp);
+    free(timings);
 
     return 0;
 }
