@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-import subprocess, struct, csv, os
+import subprocess, struct, csv, os, shutil
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
-import shutil
 
 # ================================
 # CONFIG — CHANGE ONLY THESE
 # ================================
-RUNS = 5  #runs this amount of times. dont know if this is actually helpful as its the same each run anyways
-ITS  = 500       # <---- EDIT THIS ONLY  ## number of scalar runs in ecc
+RUNS = 5
+ITS  = 20000      # <---- EDIT THIS ONLY
 
 SCALARS = {
     "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF": "all_F",
@@ -21,24 +20,24 @@ SCALARS = {
 
 RAW_OUT = "raw_timings"
 SUMMARY_CSV = "timing_summary.csv"
-REPORT_FIG  = "finalchart.png"
+REPORT_FIG  = "final_leakage_report.png"
 
-# ---- delete & recreate folder ONCE per full Python run ----
+# recreate folder
 if os.path.exists(RAW_OUT):
     shutil.rmtree(RAW_OUT)
 os.makedirs(RAW_OUT)
 
-# ================================
-# HELPERS
-# ================================
 
+# ================================
+# RUN + LOAD RAW TIMINGS
+# ================================
 def run_scalar_once(shex, label, its, run_idx):
     print(f"[RUN] {label} | ITS={its} | run {run_idx}")
 
-    # run measurement
+    # run victim + attacker
     subprocess.run(["./sync.sh", shex, str(its)], check=True)
 
-    # load timings.bin
+    # read timings.bin
     with open("timings.bin", "rb") as f:
         data = f.read()
 
@@ -51,7 +50,7 @@ def run_scalar_once(shex, label, its, run_idx):
         end   = (word >> 32) & 0xffffffff
         lats[i] = (end - start) & 0xffffffff
 
-    # save raw CSV
+    # save CSV
     out_csv = f"{RAW_OUT}/{label}_ITS{its}_run{run_idx}.csv"
     with open(out_csv, "w", newline="") as f:
         w = csv.writer(f)
@@ -64,84 +63,82 @@ def run_scalar_once(shex, label, its, run_idx):
 # ================================
 # MAIN
 # ================================
-
 def main():
-    summary_rows = []
-    plot_data = {}
+    all_data = {}
 
+    # collect all runs
     for shex, label in SCALARS.items():
-        plot_data[label] = []
-
+        all_data[label] = []
         for r in range(RUNS):
             arr = run_scalar_once(shex, label, ITS, r)
-            plot_data[label].append(arr)
+            all_data[label].append(arr)
 
-            summary_rows.append({
-                "scalar_hex": shex,
-                "label": label,
-                "ITS": ITS,
-                "run": r,
-                "mean": float(np.mean(arr)),
-                "std":  float(np.std(arr)),
-            })
+    # merge + filter outliers
+    clean_data = {}
+    for label in all_data:
+        merged = np.concatenate(all_data[label])
+        filtered = merged[(merged > 200) & (merged < 2000)]
+        clean_data[label] = filtered
 
-    # ---- write CSV ----
-    with open(SUMMARY_CSV, "w", newline="") as f:
-        w = csv.DictWriter(f, ["scalar_hex","label","ITS","run","mean","std"])
-        w.writeheader()
-        w.writerows(summary_rows)
+    labels = list(clean_data.keys())
+    merged_all = [clean_data[lbl] for lbl in labels]
 
-    print(f"[✓] Saved CSV → {SUMMARY_CSV}")
+    # =========================
+    #      FINAL PLOTS
+    # =========================
+    plt.figure(figsize=(16, 24))
 
     # ============================================================
-    #            CLEAN 3-PLOT REPORT (BEST VISUALIZATION)
+    # (A) RAW SCATTER (debug view)
     # ============================================================
-    labels = list(SCALARS.values())
-    plt.figure(figsize=(14, 18))
+    plt.subplot(4,1,1)
+    for label in labels:
+        arr = clean_data[label]
+        plt.scatter(range(len(arr)), arr, s=1, label=label)
+
+    plt.title(f"RAW Timing Scatter (filtered)  ITS={ITS}")
+    plt.xlabel("Sample Index")
+    plt.ylabel("Latency (cycles)")
+    plt.ylim(600, 800)
+    plt.legend()
 
     # ============================================================
-    # (1) KDE Density Curves (BEST FOR LEAKAGE)
+    # (B) MEAN LATENCY BAR CHART (macro leakage indicator)
     # ============================================================
-    plt.subplot(3,1,1)
+    plt.subplot(4,1,2)
+    mean_vals = [np.mean(clean_data[lbl]) for lbl in labels]
+    plt.bar(labels, mean_vals, color="skyblue")
+    plt.title("Mean Latency Per Scalar (Macro Leakage Indicator)")
+    plt.ylabel("Mean cycles")
+
+    # ============================================================
+    # (C) VIOLIN PLOT (BEST leakage visualization)
+    # ============================================================
+    plt.subplot(4,1,3)
+    plt.violinplot(merged_all, showmeans=True, showmedians=True)
+    plt.xticks(np.arange(1, len(labels) + 1), labels)
+    plt.title(f"Violin Plot — Full Distribution Per Scalar (ITS={ITS})")
+    plt.ylabel("Latency (cycles)")
+    plt.ylim(600, 800)
+
+    # ============================================================
+    # (D) KDE DENSITY CURVES (distribution shape)
+    # ============================================================
+    plt.subplot(4,1,4)
     for lbl in labels:
-        merged = np.concatenate(plot_data[lbl])
-        xs = np.linspace(np.min(merged), np.max(merged), 600)
-        kde = gaussian_kde(merged)
+        data = clean_data[lbl]
+        xs = np.linspace(np.min(data), np.max(data), 500)
+        kde = gaussian_kde(data)
         plt.plot(xs, kde(xs), label=lbl)
 
-    plt.title(f"KDE Probability Density Curves (ITS={ITS})")
+    plt.title("KDE Probability Density Curves")
     plt.xlabel("Latency (cycles)")
     plt.ylabel("Density")
     plt.legend()
 
-    # ============================================================
-    # (2) CDF Curves — good for subtle differences
-    # ============================================================
-    plt.subplot(3,1,2)
-    for lbl in labels:
-        merged = np.sort(np.concatenate(plot_data[lbl]))
-        y = np.linspace(0,1,len(merged))
-        plt.plot(merged, y, label=lbl)
-
-    plt.title("CDF (Cumulative Distribution Function)")
-    plt.xlabel("Latency (cycles)")
-    plt.ylabel("Cumulative Probability")
-    plt.legend()
-
-    # ============================================================
-    # (3) Boxplot — quick distribution overview
-    # ============================================================
-    plt.subplot(3,1,3)
-    merged_all = [np.concatenate(plot_data[l]) for l in labels]
-    plt.boxplot(merged_all, labels=labels, showmeans=True)
-
-    plt.title("Latency Distribution Per Scalar")
-    plt.xlabel("Scalar Label")
-    plt.ylabel("Latency (cycles)")
-
     plt.tight_layout()
     plt.savefig(REPORT_FIG, dpi=200)
-    print(f"[✓] Saved plot → {REPORT_FIG}")
+    print(f"[✓] Saved report → {REPORT_FIG}")
 
 
 if __name__ == "__main__":

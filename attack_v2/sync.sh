@@ -19,7 +19,7 @@ mkfifo pipe.fifo
 make -s
 
 # Start ECC victim on core 0
-taskset -c 0 ./ecc M "$ITS" "$SCALAR" &
+taskset -c 0 ./ecc D "$ITS" "$SCALAR" &
 
 sleep 0.05
 
