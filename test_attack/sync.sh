@@ -20,11 +20,27 @@ mkfifo pipe.fifo
 make -s
 
 # Start victim on core 0
-taskset -c 0 ./victim "$MODE" &
+taskset -c 0 perf stat \
+    -e cycles \
+    -e instructions \
+    -e uops_issued.any \
+    -e uops_executed.core \
+    -e move_elimination.int_eliminated \
+    -e move_elimination.int_not_eliminated \
+    ./victim "$MODE" &
+
 
 sleep 0.05
 
 # Run attacker+spy
-taskset -c 24 ./attacker
+taskset -c 0 perf stat \
+    -e cycles \
+    -e instructions \
+    -e uops_issued.any \
+    -e uops_executed.core \
+    -e move_elimination.int_eliminated \
+    -e move_elimination.int_not_eliminated \
+    ./attacker
 
 rm -f pipe.fifo
+
