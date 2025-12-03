@@ -1,0 +1,184 @@
+
+move_elim_demo_O3:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+0000000000401000 <_init>:
+  401000:	f3 0f 1e fa          	endbr64 
+  401004:	48 83 ec 08          	sub    rsp,0x8
+  401008:	48 8b 05 e1 2f 00 00 	mov    rax,QWORD PTR [rip+0x2fe1]        # 403ff0 <__gmon_start__>
+  40100f:	48 85 c0             	test   rax,rax
+  401012:	74 02                	je     401016 <_init+0x16>
+  401014:	ff d0                	call   rax
+  401016:	48 83 c4 08          	add    rsp,0x8
+  40101a:	c3                   	ret    
+
+Disassembly of section .plt:
+
+0000000000401020 <.plt>:
+  401020:	ff 35 e2 2f 00 00    	push   QWORD PTR [rip+0x2fe2]        # 404008 <_GLOBAL_OFFSET_TABLE_+0x8>
+  401026:	ff 25 e4 2f 00 00    	jmp    QWORD PTR [rip+0x2fe4]        # 404010 <_GLOBAL_OFFSET_TABLE_+0x10>
+  40102c:	0f 1f 40 00          	nop    DWORD PTR [rax+0x0]
+
+0000000000401030 <puts@plt>:
+  401030:	ff 25 e2 2f 00 00    	jmp    QWORD PTR [rip+0x2fe2]        # 404018 <puts@GLIBC_2.2.5>
+  401036:	68 00 00 00 00       	push   0x0
+  40103b:	e9 e0 ff ff ff       	jmp    401020 <.plt>
+
+0000000000401040 <printf@plt>:
+  401040:	ff 25 da 2f 00 00    	jmp    QWORD PTR [rip+0x2fda]        # 404020 <printf@GLIBC_2.2.5>
+  401046:	68 01 00 00 00       	push   0x1
+  40104b:	e9 d0 ff ff ff       	jmp    401020 <.plt>
+
+0000000000401050 <strtol@plt>:
+  401050:	ff 25 d2 2f 00 00    	jmp    QWORD PTR [rip+0x2fd2]        # 404028 <strtol@GLIBC_2.2.5>
+  401056:	68 02 00 00 00       	push   0x2
+  40105b:	e9 c0 ff ff ff       	jmp    401020 <.plt>
+
+Disassembly of section .text:
+
+0000000000401060 <main>:
+  401060:	48 83 ec 08          	sub    rsp,0x8
+  401064:	83 ff 01             	cmp    edi,0x1
+  401067:	7e 2e                	jle    401097 <main+0x37>
+  401069:	48 8b 7e 08          	mov    rdi,QWORD PTR [rsi+0x8]
+  40106d:	ba 0a 00 00 00       	mov    edx,0xa
+  401072:	31 f6                	xor    esi,esi
+  401074:	e8 d7 ff ff ff       	call   401050 <strtol@plt>
+  401079:	41 89 c0             	mov    r8d,eax
+  40107c:	85 c0                	test   eax,eax
+  40107e:	74 10                	je     401090 <main+0x30>
+  401080:	e8 6b 01 00 00       	call   4011f0 <gadget_no_elim>
+  401085:	45 31 c0             	xor    r8d,r8d
+  401088:	44 89 c0             	mov    eax,r8d
+  40108b:	48 83 c4 08          	add    rsp,0x8
+  40108f:	c3                   	ret    
+  401090:	e8 2b 01 00 00       	call   4011c0 <gadget_elim>
+  401095:	eb f1                	jmp    401088 <main+0x28>
+  401097:	48 8b 36             	mov    rsi,QWORD PTR [rsi]
+  40109a:	bf 10 20 40 00       	mov    edi,0x402010
+  40109f:	31 c0                	xor    eax,eax
+  4010a1:	e8 9a ff ff ff       	call   401040 <printf@plt>
+  4010a6:	bf 21 20 40 00       	mov    edi,0x402021
+  4010ab:	e8 80 ff ff ff       	call   401030 <puts@plt>
+  4010b0:	bf 38 20 40 00       	mov    edi,0x402038
+  4010b5:	e8 76 ff ff ff       	call   401030 <puts@plt>
+  4010ba:	41 b8 01 00 00 00    	mov    r8d,0x1
+  4010c0:	eb c6                	jmp    401088 <main+0x28>
+  4010c2:	66 2e 0f 1f 84 00 00 	nop    WORD PTR cs:[rax+rax*1+0x0]
+  4010c9:	00 00 00 
+  4010cc:	0f 1f 40 00          	nop    DWORD PTR [rax+0x0]
+
+00000000004010d0 <_start>:
+  4010d0:	f3 0f 1e fa          	endbr64 
+  4010d4:	31 ed                	xor    ebp,ebp
+  4010d6:	49 89 d1             	mov    r9,rdx
+  4010d9:	5e                   	pop    rsi
+  4010da:	48 89 e2             	mov    rdx,rsp
+  4010dd:	48 83 e4 f0          	and    rsp,0xfffffffffffffff0
+  4010e1:	50                   	push   rax
+  4010e2:	54                   	push   rsp
+  4010e3:	45 31 c0             	xor    r8d,r8d
+  4010e6:	31 c9                	xor    ecx,ecx
+  4010e8:	48 c7 c7 60 10 40 00 	mov    rdi,0x401060
+  4010ef:	ff 15 eb 2e 00 00    	call   QWORD PTR [rip+0x2eeb]        # 403fe0 <__libc_start_main@GLIBC_2.34>
+  4010f5:	f4                   	hlt    
+  4010f6:	66 2e 0f 1f 84 00 00 	nop    WORD PTR cs:[rax+rax*1+0x0]
+  4010fd:	00 00 00 
+
+0000000000401100 <_dl_relocate_static_pie>:
+  401100:	f3 0f 1e fa          	endbr64 
+  401104:	c3                   	ret    
+  401105:	66 2e 0f 1f 84 00 00 	nop    WORD PTR cs:[rax+rax*1+0x0]
+  40110c:	00 00 00 
+  40110f:	90                   	nop
+
+0000000000401110 <deregister_tm_clones>:
+  401110:	48 8d 3d 21 2f 00 00 	lea    rdi,[rip+0x2f21]        # 404038 <__TMC_END__>
+  401117:	48 8d 05 1a 2f 00 00 	lea    rax,[rip+0x2f1a]        # 404038 <__TMC_END__>
+  40111e:	48 39 f8             	cmp    rax,rdi
+  401121:	74 15                	je     401138 <deregister_tm_clones+0x28>
+  401123:	48 8b 05 be 2e 00 00 	mov    rax,QWORD PTR [rip+0x2ebe]        # 403fe8 <_ITM_deregisterTMCloneTable>
+  40112a:	48 85 c0             	test   rax,rax
+  40112d:	74 09                	je     401138 <deregister_tm_clones+0x28>
+  40112f:	ff e0                	jmp    rax
+  401131:	0f 1f 80 00 00 00 00 	nop    DWORD PTR [rax+0x0]
+  401138:	c3                   	ret    
+  401139:	0f 1f 80 00 00 00 00 	nop    DWORD PTR [rax+0x0]
+
+0000000000401140 <register_tm_clones>:
+  401140:	48 8d 3d f1 2e 00 00 	lea    rdi,[rip+0x2ef1]        # 404038 <__TMC_END__>
+  401147:	48 8d 35 ea 2e 00 00 	lea    rsi,[rip+0x2eea]        # 404038 <__TMC_END__>
+  40114e:	48 29 fe             	sub    rsi,rdi
+  401151:	48 89 f0             	mov    rax,rsi
+  401154:	48 c1 ee 3f          	shr    rsi,0x3f
+  401158:	48 c1 f8 03          	sar    rax,0x3
+  40115c:	48 01 c6             	add    rsi,rax
+  40115f:	48 d1 fe             	sar    rsi,1
+  401162:	74 14                	je     401178 <register_tm_clones+0x38>
+  401164:	48 8b 05 8d 2e 00 00 	mov    rax,QWORD PTR [rip+0x2e8d]        # 403ff8 <_ITM_registerTMCloneTable>
+  40116b:	48 85 c0             	test   rax,rax
+  40116e:	74 08                	je     401178 <register_tm_clones+0x38>
+  401170:	ff e0                	jmp    rax
+  401172:	66 0f 1f 44 00 00    	nop    WORD PTR [rax+rax*1+0x0]
+  401178:	c3                   	ret    
+  401179:	0f 1f 80 00 00 00 00 	nop    DWORD PTR [rax+0x0]
+
+0000000000401180 <__do_global_dtors_aux>:
+  401180:	f3 0f 1e fa          	endbr64 
+  401184:	80 3d a9 2e 00 00 00 	cmp    BYTE PTR [rip+0x2ea9],0x0        # 404034 <_edata>
+  40118b:	75 13                	jne    4011a0 <__do_global_dtors_aux+0x20>
+  40118d:	55                   	push   rbp
+  40118e:	48 89 e5             	mov    rbp,rsp
+  401191:	e8 7a ff ff ff       	call   401110 <deregister_tm_clones>
+  401196:	c6 05 97 2e 00 00 01 	mov    BYTE PTR [rip+0x2e97],0x1        # 404034 <_edata>
+  40119d:	5d                   	pop    rbp
+  40119e:	c3                   	ret    
+  40119f:	90                   	nop
+  4011a0:	c3                   	ret    
+  4011a1:	66 66 2e 0f 1f 84 00 	data16 nop WORD PTR cs:[rax+rax*1+0x0]
+  4011a8:	00 00 00 00 
+  4011ac:	0f 1f 40 00          	nop    DWORD PTR [rax+0x0]
+
+00000000004011b0 <frame_dummy>:
+  4011b0:	f3 0f 1e fa          	endbr64 
+  4011b4:	eb 8a                	jmp    401140 <register_tm_clones>
+  4011b6:	66 2e 0f 1f 84 00 00 	nop    WORD PTR cs:[rax+rax*1+0x0]
+  4011bd:	00 00 00 
+
+00000000004011c0 <gadget_elim>:
+  4011c0:	0f ae e8             	lfence 
+  4011c3:	b9 00 c2 eb 0b       	mov    ecx,0xbebc200
+  4011c8:	ba 02 00 00 00       	mov    edx,0x2
+  4011cd:	b8 01 00 00 00       	mov    eax,0x1
+  4011d2:	66 0f 1f 44 00 00    	nop    WORD PTR [rax+rax*1+0x0]
+  4011d8:	0f ae e8             	lfence 
+  4011db:	48 89 d0             	mov    rax,rdx
+  4011de:	0f ae e8             	lfence 
+  4011e1:	48 83 e9 01          	sub    rcx,0x1
+  4011e5:	75 f1                	jne    4011d8 <gadget_elim+0x18>
+  4011e7:	0f ae e8             	lfence 
+  4011ea:	c3                   	ret    
+  4011eb:	0f 1f 44 00 00       	nop    DWORD PTR [rax+rax*1+0x0]
+
+00000000004011f0 <gadget_no_elim>:
+  4011f0:	0f ae e8             	lfence 
+  4011f3:	ba 00 c2 eb 0b       	mov    edx,0xbebc200
+  4011f8:	b8 01 00 00 00       	mov    eax,0x1
+  4011fd:	0f 1f 00             	nop    DWORD PTR [rax]
+  401200:	0f ae e8             	lfence 
+  401203:	48 89 c0             	mov    rax,rax
+  401206:	0f ae e8             	lfence 
+  401209:	48 83 ea 01          	sub    rdx,0x1
+  40120d:	75 f1                	jne    401200 <gadget_no_elim+0x10>
+  40120f:	0f ae e8             	lfence 
+  401212:	c3                   	ret    
+
+Disassembly of section .fini:
+
+0000000000401214 <_fini>:
+  401214:	f3 0f 1e fa          	endbr64 
+  401218:	48 83 ec 08          	sub    rsp,0x8
+  40121c:	48 83 c4 08          	add    rsp,0x8
+  401220:	c3                   	ret    
