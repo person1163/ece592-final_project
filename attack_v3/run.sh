@@ -14,7 +14,7 @@ ATTACKER=$!
 sleep 0.02
 
 # Run victim normally on CPU0 (short-lived)
-taskset -c 24 ./victim 0
+taskset -c 0 ./victim 0
 
 wait $ATTACKER
 mv timings.bin timings_0.bin
@@ -29,7 +29,7 @@ ATTACKER=$!
 
 sleep 0.02
 
-taskset -c 24 ./victim 1
+taskset -c 0 ./victim 1
 
 wait $ATTACKER
 mv timings.bin timings_1.bin

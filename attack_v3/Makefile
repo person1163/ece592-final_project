@@ -12,4 +12,4 @@ attacker: attacker.c
 	objdump -d attacker > assembly_dump.txt
 
 clean:
-	rm -f victim attacker timings*.bin assembly_dump.txt perf_0.txt perf_1.txt
+	rm -f victim attacker timings*.bin assembly_dump.txt perf_0.txt perf_1.txt plots.png

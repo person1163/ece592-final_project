@@ -1,8 +1,8 @@
 #include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
 #include <x86intrin.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 #define SPY_NUM_TIMINGS (1 << 16)
 
@@ -14,20 +14,21 @@ static inline uint64_t rdtsc64(void) {
 static void rensmash(uint64_t *buf)
 {
     for (int i = 0; i < SPY_NUM_TIMINGS; i++) {
-        uint64_t a = (uint64_t)(uintptr_t)buf;
-        uint64_t b = a + 1;
-        uint64_t c = a + 2;
-        uint64_t d = a + 3;
 
         uint64_t start = rdtsc64();
 
-        for (int j = 0; j < 256; j++) {
-            uint64_t t = a;
-            a = b;
-            b = c;
-            c = d;
-            d = t;
-        }
+        // Hammer rename logic HARD
+     __asm__ volatile(
+    ".rept 512\n\t"
+    "mov %%r8, %%r9\n\t"
+    "mov %%r9, %%r10\n\t"
+    "mov %%r10, %%r11\n\t"
+    "mov %%r11, %%r8\n\t"
+    ".endr\n\t"
+    :
+    :
+    : "r8","r9","r10","r11","memory"
+);
 
         uint64_t end = rdtsc64();
 
@@ -49,8 +50,7 @@ int main(void)
     FILE *fp = fopen("timings.bin", "wb");
     assert(fp != NULL);
 
-    size_t n = fwrite(buf, sizeof(uint64_t), SPY_NUM_TIMINGS, fp);
-    assert(n == SPY_NUM_TIMINGS);
+    fwrite(buf, sizeof(uint64_t), SPY_NUM_TIMINGS, fp);
 
     fclose(fp);
     free(buf);

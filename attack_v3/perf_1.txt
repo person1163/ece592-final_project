@@ -1,16 +1,16 @@
-# started on Wed Dec  3 19:44:55 2025
+# started on Wed Dec  3 22:22:39 2025
 
 
  Performance counter stats for 'taskset -c 24 ./attacker':
 
-         4,581,625      cycles:u                                                              
-         1,270,856      instructions:u                   #    0.28  insn per cycle            
-           108,364      move_elimination.int_eliminated:u                                      
-             5,896      move_elimination.int_not_eliminated:u                                      
+        78,664,919      cycles:u                                                              
+       135,554,157      instructions:u                   #    1.72  insn per cycle            
+        61,682,916      move_elimination.int_eliminated:u                                      
+        72,658,922      move_elimination.int_not_eliminated:u                                      
 
-       0.003855623 seconds time elapsed
+       0.033975006 seconds time elapsed
 
-       0.001293000 seconds user
-       0.002593000 seconds sys
+       0.031887000 seconds user
+       0.001997000 seconds sys
 
 
