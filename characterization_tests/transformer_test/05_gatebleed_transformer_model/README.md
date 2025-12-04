@@ -1,0 +1,11 @@
+# Transformer Inference Execution Time
+
+This repository contains code to measure the execution time of transformer inference when AMX is either in a warm or cold stage.
+
+Steps:
+
+- make all
+- cd build
+- sudo ./transformer_app
+- Answer this question with cold or warm "Enter 'cold' or 'warm': "
+- Collect the timing measurements from the first column of readings.txt
