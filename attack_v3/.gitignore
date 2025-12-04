@@ -1,0 +1,6 @@
+*.bin
+*.pem
+*.sig
+
+spy
+pipe.fifo
